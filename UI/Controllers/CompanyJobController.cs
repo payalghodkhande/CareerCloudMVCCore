@@ -10,22 +10,24 @@ using CareerCloud.Pocos;
 
 namespace UI.Controllers
 {
-    public class CompanyProfileController : Controller
+    public class CompanyJobController : Controller
     {
         private readonly CareerCloudContext _context;
 
-        public CompanyProfileController(CareerCloudContext context)
+        public CompanyJobController(CareerCloudContext context)
         {
             _context = context;
         }
 
-        // GET: CompanyProfile
-        public async Task<IActionResult> Index()
+        // GET: CompanyJob
+        public async Task<IActionResult> Index(Guid? Id)
         {
-            return View(await _context.CompanyProfile.ToListAsync());
+            var careerCloudContext = _context.CompanyJob.Where(a => a.Company == Id);
+                //.Include(c => c.CompanyProfile);
+            return View(await careerCloudContext.ToListAsync());
         }
 
-        // GET: CompanyProfile/Details/5
+        // GET: CompanyJob/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -33,45 +35,43 @@ namespace UI.Controllers
                 return NotFound();
             }
 
-            var companyProfilePoco = await _context.CompanyProfile
-                .Include(c=>c.CompanyDescriptions)
-                .Include(c => c.CompanyJobs)
-                .Include(c => c.CompanyLocations)
-                //.Include(c => c.CompanyLogo)
-                //.Include(c => c.CompanyWebsite)
+            var companyJobPoco = await _context.CompanyJob
+                .Include(c => c.CompanyProfile)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (companyProfilePoco == null)
+            if (companyJobPoco == null)
             {
                 return NotFound();
             }
 
-            return View(companyProfilePoco);
+            return View(companyJobPoco);
         }
 
-        // GET: CompanyProfile/Create
+        // GET: CompanyJob/Create
         public IActionResult Create()
         {
+            ViewData["Company"] = new SelectList(_context.CompanyProfile, "Id", "Id");
             return View();
         }
 
-        // POST: CompanyProfile/Create
+        // POST: CompanyJob/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RegistrationDate,CompanyWebsite,ContactPhone,ContactName,CompanyLogo,TimeStamp")] CompanyProfilePoco companyProfilePoco)
+        public async Task<IActionResult> Create([Bind("Id,Company,ProfileCreated,IsInactive,IsCompanyHidden")] CompanyJobPoco companyJobPoco)
         {
             if (ModelState.IsValid)
             {
-                companyProfilePoco.Id = Guid.NewGuid();
-                _context.Add(companyProfilePoco);
+                companyJobPoco.Id = Guid.NewGuid();
+                _context.Add(companyJobPoco);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(companyProfilePoco);
+            ViewData["Company"] = new SelectList(_context.CompanyProfile, "Id", "Id", companyJobPoco.Company);
+            return View(companyJobPoco);
         }
 
-        // GET: CompanyProfile/Edit/5
+        // GET: CompanyJob/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -79,22 +79,23 @@ namespace UI.Controllers
                 return NotFound();
             }
 
-            var companyProfilePoco = await _context.CompanyProfile.FindAsync(id);
-            if (companyProfilePoco == null)
+            var companyJobPoco = await _context.CompanyJob.FindAsync(id);
+            if (companyJobPoco == null)
             {
                 return NotFound();
             }
-            return View(companyProfilePoco);
+            ViewData["Company"] = new SelectList(_context.CompanyProfile, "Id", "Id", companyJobPoco.Company);
+            return View(companyJobPoco);
         }
 
-        // POST: CompanyProfile/Edit/5
+        // POST: CompanyJob/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,RegistrationDate,CompanyWebsite,ContactPhone,ContactName,CompanyLogo,TimeStamp")] CompanyProfilePoco companyProfilePoco)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Company,ProfileCreated,IsInactive,IsCompanyHidden")] CompanyJobPoco companyJobPoco)
         {
-            if (id != companyProfilePoco.Id)
+            if (id != companyJobPoco.Id)
             {
                 return NotFound();
             }
@@ -103,12 +104,12 @@ namespace UI.Controllers
             {
                 try
                 {
-                    _context.Update(companyProfilePoco);
+                    _context.Update(companyJobPoco);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CompanyProfilePocoExists(companyProfilePoco.Id))
+                    if (!CompanyJobPocoExists(companyJobPoco.Id))
                     {
                         return NotFound();
                     }
@@ -119,10 +120,11 @@ namespace UI.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(companyProfilePoco);
+            ViewData["Company"] = new SelectList(_context.CompanyProfile, "Id", "Id", companyJobPoco.Company);
+            return View(companyJobPoco);
         }
 
-        // GET: CompanyProfile/Delete/5
+        // GET: CompanyJob/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -130,30 +132,31 @@ namespace UI.Controllers
                 return NotFound();
             }
 
-            var companyProfilePoco = await _context.CompanyProfile
+            var companyJobPoco = await _context.CompanyJob
+                .Include(c => c.CompanyProfile)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (companyProfilePoco == null)
+            if (companyJobPoco == null)
             {
                 return NotFound();
             }
 
-            return View(companyProfilePoco);
+            return View(companyJobPoco);
         }
 
-        // POST: CompanyProfile/Delete/5
+        // POST: CompanyJob/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var companyProfilePoco = await _context.CompanyProfile.FindAsync(id);
-            _context.CompanyProfile.Remove(companyProfilePoco);
+            var companyJobPoco = await _context.CompanyJob.FindAsync(id);
+            _context.CompanyJob.Remove(companyJobPoco);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CompanyProfilePocoExists(Guid id)
+        private bool CompanyJobPocoExists(Guid id)
         {
-            return _context.CompanyProfile.Any(e => e.Id == id);
+            return _context.CompanyJob.Any(e => e.Id == id);
         }
     }
 }
