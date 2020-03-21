@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<CareerCloud.Pocos.ApplicantSkillPoco>
 
 @{
-    ViewData["Title"] = "ApplicantSkill";
+    ViewData["Title"] = "Applicant Skill";
 }
 
-<h1>ApplicantSkill</h1>
+<h1>Applicant Skill</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-controller="ApplicantSkill" asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -37,35 +37,36 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Skill)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SkillLevel)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartMonth)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndMonth)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApplicantProfile.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Skill)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SkillLevel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartMonth)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartYear)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndMonth)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndYear)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ApplicantProfile.Id)
+                </td>
+                <td>
+                    <a asp-controller="ApplicantSkill" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-controller="ApplicantSkill" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-controller="ApplicantSkill" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
